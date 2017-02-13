@@ -35,7 +35,7 @@ class MTGApi
 
   def make_card_arr
     pg_cards = @card_data["cards"] #an array of 100 hashes of cards
-    pg_cards.find_all{|card| card["set"] == "LEA"}
+    #pg_cards.find_all{|card| card["set"] == "LEA"}
   end
 
 end
