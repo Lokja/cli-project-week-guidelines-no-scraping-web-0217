@@ -135,9 +135,16 @@ class MTGCLI
   end
 
   def help
-    puts "Type 'exit' to exit"
-    puts "Type 'help' to view this menu again"
-    puts "Type anything else to search for a cards"
+    puts "-- Type 'exit' to exit"
+    puts "-- Type 'help' to view this menu again"
+    puts "-- Type 'start' to begin searching for cards"
+    puts "-- First enter one or more colors (not seperated by comma, i.e. blue green white)"
+    puts "      Available colors are: 'black', 'blue', 'green',"
+    puts "      'red', 'white',or 'none' for colorless cards"
+    puts "-- Next enter a converted mana cost between 1 and 13"
+    puts "-- Last enter one or more card types (not seperated by comma, i.e legendary creature)"
+    puts "     Available types are: 'artifact', 'creature',"
+    puts "     'enchantment', 'instant', 'sorcery', 'land', or 'legendary'"
   end
 
 end
