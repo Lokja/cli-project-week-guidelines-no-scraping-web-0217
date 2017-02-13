@@ -1,12 +1,42 @@
 class MTGCLI
 
   def call
-    puts "Welcome to the MtG Alpha to 5ED Search CLI Application"
+    puts "
+                 `.-://+osssso++/:-.`
+             .:+syhdmNNNNNNNNNNmdhys+:.`
+          ./oydNNNNNNNNNNNNNNNNNNNNNNdyo/.
+        -+sdNNNNNNNNmdhyyyyyyhdmNNNNNNNNds+-
+      .+sdNNNNNNmyo//////////////oydNNNNNNms+.
+     :ohNNNNNNh+///::::::::::::::////smNNNNNdo/`
+   `/smNNNNNho+++////::::::::+o+++ooo+/smNNNNms+`
+   +sNNNNNmohNNNNNNNNs------:ymNNNNNNh///dNNNNNs+`
+ :omNNNNm+///yNNNNNNNs--------+NNNNNd:///hNNNNmo/
+ .ohNNNNN+//:/mNNNNNNNNy------+mNNNNNNo:///dNNNNho.
+ :oNNNNNy//::hNNNymNNNNNd/---+NNNNNNNNN+://oNNNNNo/
++sNNNNN+//:osyy/--oNNNNNNymmhossmNNNNNm+///NNNNNso
++sNNNNN//:sNNN+----/mNNNNNNNd:--:mNNNNNN+/+NNNNNyo
++sNNNNN+/+NNNh------/NNNNNNN/----/mNNNNNm++NNNNNso
+:oNNNNNy/dNNd:-------+NNNNNN+-----/NNNNNNd/hNNNNo/
+.ohNNNNosNNm/::-------hNNNNNd:-----+NNNNNNy+NNNho.
+ :omNmosNNNh::::------/NNNNNNy----::dNNNNNNsoydo/
+  /shoyNNNNNy/:::::----dNNNNNm:-::+hNNNNNNNNdso+`
+  `/odNhyyyys+/::::::::yNNNh+::::sNmhyhyysyhds+`
+    :osmNNNNNho///:::::odd/:::::///ohNNNNNNho/`
+     .+sdNNNNNNmhs+////////////+shmNNNNNNms+.
+       -+sdNNNNNNNNNmdhyyyyhhdNNNNNNNNNds+-
+         ./oydNNNNNNNNNNNNNNNNNNNNNNdyo/.
+            .:+oyhdmNNNNNNNNNNmdhys+:.
+                .-://+oossoo+//:-.`
+"
+  puts "======================================================"
+  puts "Welcome to the MtG Alpha to 5ED Search CLI Application"
+  puts "======================================================"
     run
   end
 
   COLORS = ["black", "blue", "green", "red", "white", "none"]
   TYPES = ["artifact", "creature", "enchantment", "instant", "sorcery", "land", "legendary"]
+  PAGES = (1..50).to_a
 
   def input
     gets.chomp.strip.downcase
@@ -15,8 +45,11 @@ class MTGCLI
   def colorsm
     color = input.split(" ")
     color.each do |word|
-      if !COLORS.include?(word)
-        puts "Invalid Input, please try again"
+      if word.downcase == "exit"
+        puts "See you on the battlefield, Planeswalker"
+        exit
+      elsif !COLORS.include?(word)
+        puts "Invalid Input, please try again."
         colorsm
       end
     end
@@ -27,20 +60,35 @@ class MTGCLI
     type = input.split(" ")
     type.each do |word|
       #binding.pry
-      if !TYPES.include?(word)
-        puts "Invalid Input, please try again"
+      if word.downcase == "exit"
+        puts "See you on the battlefield, Planeswalker"
+        exit
+      elsif !TYPES.include?(word)
+        puts "Invalid Input, please try again."
         typesm
       end
     end
     type
   end
 
+  def cmcm
+    cmc = input.to_i
+    if cmc.class == String && cmc == "exit"
+      puts "See you on the battlefield, Planeswalker"
+      exit
+    elsif cmc.class != Fixnum
+      puts "Invalid Input, please try again."
+      cmcm
+    end
+    cmc
+  end
+
   def get_user_input
-    puts "Please enter a color:"
-    puts "Black, Blue, Green, Red, White, or none for artifacts:"
+    puts "Please enter a color identity:"
+    puts "Black, Blue, Green, Red, White, or none for colorless:"
     colors = colorsm
     puts "Please enter the converted mana cost:"
-    cmc = gets.chomp.strip.to_i
+    cmc = cmcm
     puts "Please enter a Card Type (Creature, Land, Artifact, etc.)"
     types = typesm
     {colors: colors, cmc: cmc, types: types}
@@ -63,8 +111,6 @@ class MTGCLI
     run
   end
 
-  PAGES = (1..3).to_a
-
   def get_cards(colors, cmc, types)
     all_cards = []
 
@@ -80,7 +126,9 @@ class MTGCLI
     found_cards.each do |card|
       names << card["name"]
     end
-    names.uniq.each{|name| puts name}
+    names.uniq.each do |name|
+      puts name
+    end
     if found_cards == []
       puts "Couldn't find any cards with those parameters, please try again."
     end
