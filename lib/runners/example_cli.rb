@@ -28,15 +28,17 @@ class MTGCLI
             .:+oyhdmNNNNNNNNNNmdhys+:.
                 .-://+oossoo+//:-.`
 "
-  puts "======================================================"
-  puts "Welcome to the MtG Alpha to 5ED Search CLI Application"
-  puts "======================================================"
+  puts "========================================================"
+  puts "Welcome to the MtG BFZ to Present Search CLI Application"
+  puts "========================================================"
+  puts ""
+  puts ""
     run
   end
 
   COLORS = ["black", "blue", "green", "red", "white", "none"]
   TYPES = ["artifact", "creature", "enchantment", "instant", "sorcery", "land", "legendary"]
-  PAGES = (1..50).to_a
+  PAGES = (294..326).to_a
 
   def input
     gets.chomp.strip.downcase
@@ -84,13 +86,18 @@ class MTGCLI
   end
 
   def get_user_input
+    puts ""
     puts "Please enter a color identity:"
     puts "Black, Blue, Green, Red, White, or none for colorless:"
     colors = colorsm
+    puts ""
     puts "Please enter the converted mana cost:"
     cmc = cmcm
+    puts ""
     puts "Please enter a Card Type (Creature, Land, Artifact, etc.)"
     types = typesm
+    puts ""
+    puts "Searching the Multiverse..."
     {colors: colors, cmc: cmc, types: types}
   end
 
@@ -118,19 +125,19 @@ class MTGCLI
       url = "https://api.magicthegathering.io/v1/cards?page=#{page}"
       all_cards += MTGApi.new(url).make_card_arr
     end
-    #binding.pry
     found_cards = MTGModel.new(colors, cmc, types, all_cards).compare
-    #binding.pry
+    puts ""
     puts "Thank you for your patience. I found these cards:"
     names = []
     found_cards.each do |card|
-      names << card["name"]
+      names << "#{card["name"]} - #{card["setName"]}"
     end
     names.uniq.each do |name|
       puts name
     end
     if found_cards == []
       puts "Couldn't find any cards with those parameters, please try again."
+      puts ""
     end
   end
 
