@@ -1,5 +1,12 @@
 class MTGCLI
 
+  attr_accessor :cards_array, :api_caller, :colors, :cmc, :types, :output
+
+  def initialize(page_range)
+    @api_caller = MTGApi.new(page_range)
+    @cards_array = []
+  end
+
   def call
     puts "
                  `.-://+osssso++/:-.`
@@ -33,113 +40,141 @@ class MTGCLI
   puts "========================================================"
   puts ""
   puts ""
-    run
+    start
   end
 
   COLORS = ["black", "blue", "green", "red", "white", "none"]
   TYPES = ["artifact", "creature", "enchantment", "instant", "sorcery", "land", "legendary"]
-  PAGES = (294..326).to_a
+  CMCS = (0..13)
 
-  def input
-    gets.chomp.strip.downcase
-  end
 
-  def colorsm
-    color = input.split(" ")
-    color.each do |word|
-      if word.downcase == "exit"
-        puts "See you on the battlefield, Planeswalker"
-        exit
-      elsif !COLORS.include?(word)
-        puts "Invalid Input, please try again."
-        colorsm
-      end
-    end
-    color
-  end
-
-  def typesm
-    type = input.split(" ")
-    type.each do |word|
-      #binding.pry
-      if word.downcase == "exit"
-        puts "See you on the battlefield, Planeswalker"
-        exit
-      elsif !TYPES.include?(word)
-        puts "Invalid Input, please try again."
-        typesm
-      end
-    end
-    type
-  end
-
-  def cmcm
-    cmc = input.to_i
-    if cmc.class == String && cmc == "exit"
-      puts "See you on the battlefield, Planeswalker"
-      exit
-    elsif cmc.class != Fixnum
-      puts "Invalid Input, please try again."
-      cmcm
-    end
-    cmc
+  def start
+    puts "--------------------------------------------------------------------"
+    puts "Ready? Please type 'start' to begin. Otherwise type 'help' or 'exit'."
+    input = check_answers()
+    start
   end
 
   def get_user_input
     puts ""
     puts "Please enter a color identity:"
     puts "Black, Blue, Green, Red, White, or none for colorless:"
-    colors = colorsm
+    @colors = check_answers(COLORS)
     puts ""
     puts "Please enter the converted mana cost:"
-    cmc = cmcm
+    @cmc = check_answers(CMCS)
     puts ""
     puts "Please enter a Card Type (Creature, Land, Artifact, etc.)"
-    types = typesm
+    @types = check_answers(TYPES)
     puts ""
     puts "Searching the Multiverse..."
-    {colors: colors, cmc: cmc, types: types}
   end
 
-  def run
-    puts "Ready? Please type 'start' to begin. Otherwise type 'help' or 'exit'."
-    input = gets.chomp
-    if input.downcase == "help"
+  def check_answers(question = nil)
+    answer = input
+    if answer == "help"
+      puts "Pulling up help options"
+      puts ""
+      sleep(1)
       help
-    elsif input.downcase == "exit"
+      sleep(2)
+      puts ""
+      start
+    elsif answer == "exit"
       puts "See you on the battlefield, Planeswalker"
       exit
-    elsif input.downcase == "start"
-      card_inputs = get_user_input
-      get_cards(card_inputs[:colors], card_inputs[:cmc], card_inputs[:types])
+    elsif answer == "start" || answer == "restart"
+      sleep(1)
+      get_user_input
+      get_cards
+      get_card_info
+      binding.pry
+      results
+  #    user_inputs = get_user_input
+  #    get_cards(user_inputs[:colors], user_inputs[:cmc], user_inputs[:types])
+    elsif question == TYPES || question == COLORS
+      answer = answer.split(" ")
+      if answer.all? {|i| question.include?(i)}
+        answer
+      else
+        invalid_input(question)
+      end
+    elsif question == CMCS
+      answer = Integer(answer) rescue false
+       if !!answer
+        answer
+      else
+        invalid_input(question)
+      end
     else
-      puts "Did not recognize your input. Please try again"
+      invalid_input(question)
     end
-    run
   end
 
-  def get_cards(colors, cmc, types)
-    all_cards = []
+  def invalid_input(question = nil)
+    puts "Invalid Input, please try again"
+    check_answers(question)
+  end
 
-    PAGES.each do |page|
-      url = "https://api.magicthegathering.io/v1/cards?page=#{page}"
-      all_cards += MTGApi.new(url).make_card_arr
-    end
-    found_cards = MTGModel.new(colors, cmc, types, all_cards).compare
-    puts ""
-    puts "Thank you for your patience. I found these cards:"
-    names = []
+  def input
+    gets.chomp.strip.downcase
+  end
+
+  def get_cards
+    self.cards_array = self.api_caller.get_card_array
+  end
+
+  def find_cards
+    MTGModel.new(self.colors, self.cmc, self.types, self.cards_array).compare
+  end
+
+  def get_card_info
+    card_info = []
+    found_cards = self.find_cards
     found_cards.each do |card|
-      names << "#{card["name"]} - #{card["setName"]}"
+      card_info << "#{card["name"]} - #{card["setName"]}"
     end
-    names.uniq.each do |name|
-      puts name
-    end
-    if found_cards == []
+    @output = card_info.uniq
+  end
+
+  def results
+    puts ""
+    if self.output == []
       puts "Couldn't find any cards with those parameters, please try again."
       puts ""
+    else
+      puts "Thank you for your patience. I found these cards:"
+      self.output.each do |card|
+        puts card
+      end
     end
   end
+
+
+
+
+  # def get_cards(colors, cmc, types)
+  #   all_cards = []
+  #
+  #   PAGES.each do |page|
+  #     url = "https://api.magicthegathering.io/v1/cards?page=#{page}"
+  #     all_cards += MTGApi.new(url).make_card_arr
+  #   end
+  #   found_cards = MTGModel.new(colors, cmc, types, all_cards).compare
+  #   puts ""
+  #   puts "Thank you for your patience. I found these cards:"
+  #   names = []
+  #   found_cards.each do |card|
+  #     names << "#{card["name"]} - #{card["setName"]}"
+  #   end
+  #   names.uniq.each do |name|
+  #     puts name
+  #   end
+  #   if found_cards == []
+  #     puts "Couldn't find any cards with those parameters, please try again."
+  #     puts ""
+  #   end
+  # end
 
   def help
     puts "-- Type 'exit' to exit"

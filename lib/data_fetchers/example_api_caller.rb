@@ -1,14 +1,20 @@
 class MTGApi
 
-  attr_reader :card_data, :url
+  attr_accessor :all_cards, :pages
+  BASE_URL = "https://api.magicthegathering.io/v1/cards?page="
 
-  def initialize(url)
-    @card_data = JSON.parse(RestClient.get(url))
+  def initialize(page_range)
+    @pages = page_range.to_a
+    @all_cards = []
   end
 
-
-  def make_card_arr
-    pg_cards = @card_data["cards"]
+  def get_card_array
+    self.pages.each do |page|
+      url = "#{BASE_URL}#{page}"
+      page_data = JSON.parse(RestClient.get(url))
+      pg_cards = page_data["cards"]
+      @all_cards += pg_cards
+    end
+    self.all_cards
   end
-
 end
