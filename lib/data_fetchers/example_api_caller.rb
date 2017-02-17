@@ -6,7 +6,6 @@ class MTGApi
     @card_data = JSON.parse(RestClient.get(url))
   end
 
-
   def make_card_arr
     pg_cards = @card_data["cards"]
   end

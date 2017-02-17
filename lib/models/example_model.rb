@@ -19,21 +19,19 @@ class MTGModel
 
 
   def compare
-
     @all_cards.find_all do |card|
-      if !card.has_key?("supertypes")
-        card["supertypes"] = []
-      elsif !@orig_types.include?("legendary")
-        card["supertypes"] = []
-        @supertypes = []
-      end
-      if !card.has_key?("cmc")
-        card["cmc"] = 0
-      end
-      if !card.has_key?("colorIdentity")
-        card["colorIdentity"] = []
-      end
+      initializeEmptyVars(card)
       card["colorIdentity"].sort == convertToID.sort && card["cmc"] == @cmc && card["types"].map{|v| v.downcase} == @types.map{|v| v.downcase}.sort && card["supertypes"].map{|v| v.downcase}.sort == @supertypes.map{|v| v.downcase}.sort
+    end
+  end
+
+  def initializeEmptyVars(card)
+    card["supertypes"] ||= []
+    card["cmc"] ||= 0
+    card["colorIdentity"] ||= []
+    if !@orig_types.include?("legendary")
+      card["supertypes"] = []
+      @supertypes = []
     end
   end
 

@@ -38,10 +38,13 @@ class MTGCLI
 
   COLORS = ["black", "blue", "green", "red", "white", "none"]
   TYPES = ["artifact", "creature", "enchantment", "instant", "sorcery", "land", "legendary"]
-  PAGES = (294..326).to_a
+  PAGES = (1..3).to_a #look into pages if you want a specific timeframe!
 
   def input
-    gets.chomp.strip.downcase
+    userin = gets.chomp.strip.downcase
+    if userin.downcase.split(" ").include?("exit")
+      puts "See you on the battlefield, Planeswalker"
+      exit
   end
 
   def colorsm
