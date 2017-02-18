@@ -8,6 +8,7 @@ class MTGJSONCaller
   end
 
   def self.update
+    puts "UPDATING WOO"
   end
 
 end

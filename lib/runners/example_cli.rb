@@ -48,7 +48,12 @@ class MTGCLI
     if @fetch_caller.local_version == @api_caller.live_version
       puts "Up to date."
     else
-      puts "You're using an outdated database, please update."
+      puts "You're using an outdated database, would you like to update? (Y/N)"
+      ui = gets.chomp.strip.downcase[0]
+      if ui == "y"
+        @api_caller.update
+        call
+      end
     end
     start
   end
