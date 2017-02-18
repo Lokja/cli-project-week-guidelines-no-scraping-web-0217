@@ -1,9 +1,10 @@
 class MTGCLI
 
-  attr_accessor :cards_array, :api_caller, :colors, :cmc, :types, :output
+  attr_accessor :cards_array, :fetch_caller, :colors, :cmc, :types, :output, :api_caller
 
-  def initialize(page_range)
-    @api_caller = MTGApi.new(page_range)
+  def initialize
+    @fetch_caller = MTGFetch.new
+    @api_caller = MTGJSONCaller.new
     @cards_array = []
   end
 
@@ -35,17 +36,26 @@ class MTGCLI
             .:+oyhdmNNNNNNNNNNmdhys+:.
                 .-://+oossoo+//:-.`
 "
-  puts "========================================================"
-  puts "Welcome to the MtG BFZ to Present Search CLI Application"
-  puts "========================================================"
-  puts ""
-  puts ""
+    puts "========================================================"
+    puts "      Welcome to the MtG CLI Search Application"
+    puts "========================================================"
+    puts ""
+    puts ""
+
+    puts "The local version is #{@fetch_caller.local_version}."
+    puts "The live version is #{@api_caller.live_version}."
+
+    if @fetch_caller.local_version == @api_caller.live_version
+      puts "Up to date."
+    else
+      puts "You're using an outdated database, please update."
+    end
     start
   end
 
   COLORS = ["black", "blue", "green", "red", "white", "none"]
-  TYPES = ["artifact", "creature", "enchantment", "instant", "sorcery", "land", "legendary"]
-  CMCS = (0..13)
+  TYPES = ["artifact", "creature", "enchantment", "instant", "sorcery", "land", "legendary", "planeswalker"]
+  CMCS = (0..15)
 
 
   def start
@@ -88,7 +98,6 @@ class MTGCLI
       get_user_input
       get_cards
       get_card_info
-      binding.pry
       results
   #    user_inputs = get_user_input
   #    get_cards(user_inputs[:colors], user_inputs[:cmc], user_inputs[:types])
@@ -121,16 +130,19 @@ class MTGCLI
   end
 
   def get_cards
-    self.cards_array = self.api_caller.get_card_array
+    self.cards_array = self.fetch_caller.get_card_array
   end
 
   def find_cards
+    #binding.pry
     MTGModel.new(self.colors, self.cmc, self.types, self.cards_array).compare
+
   end
 
   def get_card_info
     card_info = []
     found_cards = self.find_cards
+    #binding.pry
     found_cards.each do |card|
       card_info << "#{card["name"]} - #{card["setName"]}"
     end
@@ -149,32 +161,6 @@ class MTGCLI
       end
     end
   end
-
-
-
-
-  # def get_cards(colors, cmc, types)
-  #   all_cards = []
-  #
-  #   PAGES.each do |page|
-  #     url = "https://api.magicthegathering.io/v1/cards?page=#{page}"
-  #     all_cards += MTGApi.new(url).make_card_arr
-  #   end
-  #   found_cards = MTGModel.new(colors, cmc, types, all_cards).compare
-  #   puts ""
-  #   puts "Thank you for your patience. I found these cards:"
-  #   names = []
-  #   found_cards.each do |card|
-  #     names << "#{card["name"]} - #{card["setName"]}"
-  #   end
-  #   names.uniq.each do |name|
-  #     puts name
-  #   end
-  #   if found_cards == []
-  #     puts "Couldn't find any cards with those parameters, please try again."
-  #     puts ""
-  #   end
-  # end
 
   def help
     puts "-- Type 'exit' to exit"
