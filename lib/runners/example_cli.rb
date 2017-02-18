@@ -42,19 +42,7 @@ class MTGCLI
     puts ""
     puts ""
 
-    puts "The local version is #{@fetch_caller.local_version}."
-    puts "The live version is #{@api_caller.live_version}."
-
-    if @fetch_caller.local_version == @api_caller.live_version
-      puts "Up to date."
-    else
-      puts "You're using an outdated database, would you like to update? (Y/N)"
-      ui = gets.chomp.strip.downcase[0]
-      if ui == "y"
-        @api_caller.update
-        call
-      end
-    end
+    version
     start
   end
 
@@ -62,8 +50,23 @@ class MTGCLI
   TYPES = ["artifact", "creature", "enchantment", "instant", "sorcery", "land", "legendary", "planeswalker"]
   CMCS = (0..15)
 
+  def version
+    puts "Local data version: #{@fetch_caller.local_version}."
+    puts "Live data version: #{@api_caller.live_version}."
+
+    if !@fetch_caller.local_version == @api_caller.live_version
+      puts "You're using an outdated database, would you like to update? (Y/N)"
+      ui = gets.chomp.strip.downcase[0]
+      if ui == "y"
+        @api_caller.update
+        call
+      end
+    end
+
+  end
 
   def start
+    puts ""
     puts "--------------------------------------------------------------------"
     puts "Ready? Please type 'start' to begin. Otherwise type 'help' or 'exit'."
     input = check_answers()
@@ -99,13 +102,10 @@ class MTGCLI
       puts "See you on the battlefield, Planeswalker"
       exit
     elsif answer == "start" || answer == "restart"
-      sleep(1)
       get_user_input
       get_cards
       get_card_info
       results
-  #    user_inputs = get_user_input
-  #    get_cards(user_inputs[:colors], user_inputs[:cmc], user_inputs[:types])
     elsif question == TYPES || question == COLORS
       answer = answer.split(" ")
       if answer.all? {|i| question.include?(i)}
@@ -139,17 +139,14 @@ class MTGCLI
   end
 
   def find_cards
-    #binding.pry
     MTGModel.new(self.colors, self.cmc, self.types, self.cards_array).compare
-
   end
 
   def get_card_info
     card_info = []
     found_cards = self.find_cards
-    #binding.pry
     found_cards.each do |card|
-      card_info << "#{card["name"]} - #{card["setName"]}"
+      card_info << "#{card["name"]} - #{card["printings"].last}"
     end
     @output = card_info.uniq
   end

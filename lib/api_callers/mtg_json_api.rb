@@ -7,7 +7,7 @@ class MTGJSONCaller
     RestClient.get(url).to_s
   end
 
-  def self.update
+  def update
     puts "UPDATING WOO"
   end
 
