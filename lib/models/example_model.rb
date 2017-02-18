@@ -18,10 +18,11 @@ class MTGModel
   end
 
   def compare
-    #@cards_array = [{"name" => "Black Lotus", "printings" => ["LEA"], "types" => ["Artifact"]}]
     @cards_array.find_all do |card|
       handle_legendary(card)
-      initializeEmptyVars(card)
+      card["cmc"] ||= 0
+      card["colorIdentity"] ||= []
+      card["types"] ||= []
       card["colorIdentity"].sort == reformat_color.sort && card["cmc"] == @cmc && card["types"].map{|v| v.downcase}.sort == @types.map{|v| v.downcase}.sort
     end
   end
@@ -32,11 +33,6 @@ class MTGModel
     else
       @colors.map{|v| v.downcase == "blue" ? "U" : v[0].upcase}
     end
-  end
-
-  def initializeEmptyVars(card)
-    card["cmc"] ||= 0
-    card["colorIdentity"] ||= []
   end
 
 end
